@@ -1,0 +1,14 @@
+// Define some variables for easy customization
+$backgroundColor: #f8f8f8;
+$textColor: #333;
+
+section {
+  // Apply the background color
+  background-color: $backgroundColor;
+
+  pre {
+    // Apply text color and add some padding for space
+    color: $textColor;
+    padding: 20px;
+  }
+}
