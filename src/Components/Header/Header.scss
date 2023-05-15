@@ -1,0 +1,16 @@
+// Define some variables for easy customization
+$backgroundColor: #4c4c4c;
+$textColor: #fff;
+
+header {
+  // Apply the background color
+  background-color: $backgroundColor;
+  
+  h1 {
+    // Center text and apply color
+    text-align: center;
+    color: $textColor;
+  }
+}
+
+// flipping gosh darn styling, man...

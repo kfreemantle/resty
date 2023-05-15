@@ -1,0 +1,15 @@
+// Define some variables for easy customization
+$backgroundColor: #4c4c4c;
+$textColor: #fff;
+
+footer {
+  // Apply the background color
+  background-color: $backgroundColor;
+  
+  // Center the text and apply color
+  text-align: center;
+  color: $textColor;
+  
+  // Add some padding for a bit of space around the text
+  padding: 10px 0;
+}
