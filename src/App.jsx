@@ -1,37 +1,40 @@
-import React, { useState } from 'react';
-
-import './App.scss';
+import React, { useState, useEffect } from 'react';
 import Header from './Components/Header';
-import Footer from './Components/Footer';
 import Form from './Components/Form';
 import Results from './Components/Results';
+import Footer from './Components/Footer';
 
-const App = () => {
-
-  const [data, setData] = useState(null);
+function App() {
+  // Define states
   const [requestParams, setRequestParams] = useState({});
+  const [apiResults, setApiResults] = useState({});
 
-  const callApi = (requestParams) => {
-    const data = {
-      count: 2,
-      results: [
-        {name: 'fake thing 1', url: 'http://fakethings.com/1'},
-        {name: 'fake thing 2', url: 'http://fakethings.com/2'},
-      ],
-    };
-    setData(data);
-    setRequestParams(requestParams);
+  // Callback function to handle form submission
+  const handleFormSubmit = (params) => {
+    setRequestParams(params);
   }
 
+  // useEffect to run API call whenever requestParams changes
+  useEffect(() => {
+    // Prevent running on initial render when requestParams is empty
+    if (requestParams.url && requestParams.method) {
+      // Async function to make API call
+      const getApiData = async () => {
+        const response = await fetch(requestParams.url, { method: requestParams.method });
+        const data = await response.json();
+        setApiResults(data);
+      }
+      getApiData();
+    }
+  }, [requestParams]);
+
   return (
-    <React.Fragment>
+    <div className="App">
       <Header />
-      <div>Request Method: {requestParams.method}</div>
-      <div>URL: {requestParams.url}</div>
-      <Form handleApiCall={callApi} />
-      <Results data={data} />
+      <Form handleFormSubmit={handleFormSubmit} />
+      <Results data={apiResults} />
       <Footer />
-    </React.Fragment>
+    </div>
   );
 }
 
