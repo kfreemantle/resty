@@ -1,21 +1,33 @@
-import { render, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import { render, screen, waitFor } from '@testing-library/react';
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
+import userEvent from '@testing-library/user-event';
 import App from '../App';
+import '@testing-library/jest-dom';
 
-test('Updates on form submit and displays requestParams', async () => {
-  const { getByText, getByLabelText } = render(<App />);
 
-  const urlInput = getByLabelText('URL:');
-  const goButton = getByText('GO!');
+const server = setupServer(
+  rest.get('https://test.com', (req, res, ctx) => {
+    return res(ctx.json({ message: 'Test data' }));
+  })
+);
 
-  fireEvent.change(urlInput, { target: { value: 'https://test.com' } });
-  fireEvent.click(getByText('POST'));
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
 
-  fireEvent.click(goButton);
+test('Updates on form submit and displays API results', async () => {
+  render(<App />);
+  const urlInput = screen.getByLabelText(/URL:/i);
+  const methodSelect = screen.getByLabelText(/Method:/i);
+  const goButton = screen.getByText(/Go/i);
 
-  const requestMethod = await getByText('Request Method: POST');
-  const requestUrl = await getByText('URL: https://test.com');
+  userEvent.type(urlInput, 'https://test.com');
+  userEvent.selectOptions(methodSelect, ['GET']);
+  userEvent.click(goButton);
 
-  expect(requestMethod).toBeInTheDocument();
-  expect(requestUrl).toBeInTheDocument();
+  // Wait for results to be displayed
+  const results = await screen.findByText(/Test data/i);
+
+  expect(results).toBeInTheDocument();
 });
