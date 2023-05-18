@@ -1,38 +1,51 @@
-import React, { useState, useEffect } from 'react';
+import React, { useReducer, useEffect } from 'react';
 import Header from './Components/Header';
 import Form from './Components/Form';
 import Results from './Components/Results';
 import Footer from './Components/Footer';
+import History from './Components/History'; // Import the new History component
+
+const initialState = {
+  requestParams: {},
+  apiResults: null,
+  history: []
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'SET_PARAMS':
+      return { ...state, requestParams: action.payload };
+    case 'SET_RESULTS':
+      return { ...state, apiResults: action.payload, history: [...state.history, action.payload] };
+    default:
+      return state;
+  }
+};
 
 function App() {
-  // Define states
-  const [requestParams, setRequestParams] = useState({});
-  const [apiResults, setApiResults] = useState({});
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-  // Callback function to handle form submission
   const handleFormSubmit = (params) => {
-    setRequestParams(params);
+    dispatch({ type: 'SET_PARAMS', payload: params });
   }
 
-  // useEffect to run API call whenever requestParams changes
   useEffect(() => {
-    // Prevent running on initial render when requestParams is empty
-    if (requestParams.url && requestParams.method) {
-      // Async function to make API call
+    if (state.requestParams.url && state.requestParams.method) {
       const getApiData = async () => {
-        const response = await fetch(requestParams.url, { method: requestParams.method });
+        const response = await fetch(state.requestParams.url, { method: state.requestParams.method });
         const data = await response.json();
-        setApiResults(data);
+        dispatch({ type: 'SET_RESULTS', payload: { params: state.requestParams, results: data } });
       }
       getApiData();
     }
-  }, [requestParams]);
+  }, [state.requestParams]);
 
   return (
     <div className="App">
       <Header />
       <Form handleFormSubmit={handleFormSubmit} />
-      <Results data={apiResults} />
+      <History history={state.history} onRerun={handleFormSubmit} />
+      <Results data={state.apiResults} />
       <Footer />
     </div>
   );
